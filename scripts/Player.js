@@ -15,7 +15,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         //Attack
         if(Phaser.Input.Keyboard.JustDown(this.input.attack) && this.cooldown <= 0){
             if(this.anims.currentAnim.key !== 'attack') this.play('attack');
-            var proj = this.projectiles.get(this.x, this.y, 0);
+            var proj = this.scene.projectiles.get(this.x, this.y, 0);
             if(proj !== null){
                 proj.fire(this);
                 this.cooldown = 500;
