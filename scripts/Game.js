@@ -77,12 +77,10 @@ class Game extends Phaser.Scene {
             repeat: -1,
         });
         ///Player object
-        /*this.player = this.physics.add.sprite(400, 100, 'dino', 0);
-        this.player.setScale(2.5);
-        this.player.play('idle');
-        this.player.cooldown = 0;*/
         this.player = new Player(this, 400, 100);
+        this.physics.world.enable(this.player);
         this.player.spawn();
+        this.add.existing(this.player);
         ///Setup input
         this.player.input = this.input.keyboard.addKeys({
             left: Phaser.Input.Keyboard.KeyCodes.A,
@@ -156,60 +154,14 @@ class Game extends Phaser.Scene {
             pickup.pickup();
         }, undefined, this);
 
-        
-
         var enemy = this.enemies.get(this.player.x + 50, this.player.y, 'clockworker');
         enemy.spawn();
         var enemy = this.enemies.get(this.player.x, this.player.y+ 200, 'clockworker');
         enemy.spawn();
     }
 
-    update(_, dt){/*
-        //Attack
-        if(Phaser.Input.Keyboard.JustDown(this.player.input.attack) && this.player.cooldown <= 0){
-            if(this.player.anims.currentAnim.key !== 'attack') this.player.play('attack');
-            var proj = this.projectiles.get(this.player.x, this.player.y, 0);
-            if(proj !== null){
-                proj.fire(this.player);
-                this.player.cooldown = 500;
-            }
-        }
-        //Movement
-        if(this.player.input.left.isDown){
-            //is anim already running?
-            if(this.player.anims.currentAnim.key !== 'walk' && this.player.input.attack.isUp) this.player.play('walk');
-            if(this.player.flipX) this.player.flipX = false;
-            //change speed on x-axis
-            this.player.body.setVelocityX(-config.physics.player.moveSpeed);
-        }else if(this.player.input.right.isDown){
-            if(this.player.anims.currentAnim.key !== 'walk' && this.player.input.attack.isUp) this.player.play('walk');
-            if(!this.player.flipX) this.player.flipX = true;
-            this.player.body.setVelocityX(config.physics.player.moveSpeed);
-        }
-        ///Jump
-        if(this.player.input.jump.isDown && this.player.body.onFloor()){
-            this.player.body.setVelocityY(-config.physics.player.jumpForce);
-            this.player.play('jump');
-        }
-        ///Reset movement + anims
-        if(this.player.input.left.isUp && this.player.input.right.isUp){
-            //restore idle anim
-            if(this.player.anims.currentAnim.key !== 'idle' && this.player.input.attack.isUp && this.player.body.velocity.y >= 0) {
-                this.player.play('idle');
-            }
-            //stop moving
-            this.player.body.setVelocityX(0);
-        }
+    update(_, dt){
 
-        //Fall down brings you back up
-        if(this.player.y > 620){
-            this.player.y = -20;
-        }
-
-        //Shoot cooldown
-        if(this.player.cooldown > 0){
-            this.player.cooldown -= dt;
-        }*/
     }
 
     addScore(amount){
