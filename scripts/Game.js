@@ -1,15 +1,16 @@
-var _Game;
 class Game extends Phaser.Scene {
     constructor() {
         super({key: "Game"});
     }
 
     preload(){
-        _Game = this;
+        this.load.bitmapFont('pixel', 'assets/Pixel Emulator.png', 'assets/Pixel Emulator.fnt');
         this.load.spritesheet('dino', 'assets/dino.png', {frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('bubble', 'assets/bubbles.png', {frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('bullet', 'assets/bullets.png', {frameWidth: 10, frameHeight: 10});
         this.load.spritesheet('clockworker', 'assets/clockworker.png', {frameWidth: 16, frameHeight: 16});
+        this.load.spritesheet('apple', 'assets/apple.png', {frameWidth: 16, frameHeight: 15});
+        this.load.image('head', 'assets/head.png');
         this.load.image('tiles', 'assets/tiles.png');
         this.load.tilemapTiledJSON('level1', 'assets/level1.json');
     }
@@ -25,10 +26,17 @@ class Game extends Phaser.Scene {
         solidLayer.setScale(3); platformsLayer.setScale(3); //makes it a height of 600 (our canvas)
         enemyReverseLayer.setScale(3); enemySolidLayer.setScale(3);
 
-        solidLayer.setCollisionByExclusion([-1], true);
-        platformsLayer.setCollisionByExclusion([-1], true);
-        enemyReverseLayer.setCollisionByExclusion([-1], true);
-        enemySolidLayer.setCollisionByExclusion([-1], true);
+        //Life display
+        let livesText = this.add.bitmapText(50, 15, 'pixel', 'Lives', 14).setOrigin(.5);
+        this.lives = 3;
+        this.lifeDisplay = this.add.group({
+            key: 'head',
+            repeat: this.lives-1,
+            setXY: { x: 25, y: 50, stepX: 25 }
+        });
+        this.add.bitmapText(50, 75, 'pixel', 'Score', 14).setOrigin(.5);
+        this.score = 0;
+        this.scoreText = this.add.bitmapText(50, 97, 'pixel', '0', 16).setOrigin(.5);
 
         //Setup Player
         ///Animations
@@ -62,11 +70,19 @@ class Game extends Phaser.Scene {
             frameRate: 4,
             repeat: -1,
         });
+        this.anims.create({
+            key: 'applebye',
+            frames: this.anims.generateFrameNumbers('apple', { start: 0, end: 1}),
+            frameRate: 4,
+            repeat: -1,
+        });
         ///Player object
         this.player = this.physics.add.sprite(400, 100, 'dino', 0);
         this.player.setScale(2.5);
         this.player.play('idle');
         this.player.cooldown = 0;
+        //this.player = new Player(this, 400, 100);
+        //this.player.spawn();
         ///Setup input
         this.player.input = this.input.keyboard.addKeys({
             left: Phaser.Input.Keyboard.KeyCodes.A,
@@ -91,8 +107,18 @@ class Game extends Phaser.Scene {
             maxSize: 10,
             runChildUpdate: true,
         });
+        this.pickups = this.physics.add.group({
+            classType: Pickup,
+            maxSize: 10,
+            runChildUpdate: true,
+        });
 
         //Collisions & Colliders
+        ///Tilemap layers
+        solidLayer.setCollisionByExclusion([-1], true);
+        platformsLayer.setCollisionByExclusion([-1], true);
+        enemyReverseLayer.setCollisionByExclusion([-1], true);
+        enemySolidLayer.setCollisionByExclusion([-1], true);
         ///Player with world
         this.physics.add.collider(this.player, solidLayer);
         this.physics.add.collider(this.player, platformsLayer);
@@ -110,7 +136,6 @@ class Game extends Phaser.Scene {
             tile.collideRight = true;
         });  
         this.physics.add.collider(this.enemies, enemyReverseLayer, function(enemy){
-            console.log('change dir');
             enemy.changeDir();
         });
         this.physics.add.collider(this.enemies, enemySolidLayer);
@@ -121,9 +146,16 @@ class Game extends Phaser.Scene {
         ///Catch the enemy with projectile
         this.physics.add.collider(this.projectiles, this.enemies, function(proj, enemy){proj.hit(enemy);}, undefined, this);
         ///Bubbles with player to kill the enemy
-        this.physics.add.collider(this.player, this.bubbles, function(player, bubble){
+        this.physics.add.overlap(this.player, this.bubbles, function(player, bubble){
             bubble.pickup();
-        });
+        }, undefined, this);
+        //Pickups with world and player
+        this.physics.add.collider(this.pickups, solidLayer);
+        this.physics.add.collider(this.pickups, platformsLayer);
+        this.physics.add.overlap(this.player, this.pickups, function(player, pickup){
+            pickup.pickup();
+        }, undefined, this);
+
         
 
         var enemy = this.enemies.get(this.player.x + 50, this.player.y, 'clockworker');
@@ -132,17 +164,16 @@ class Game extends Phaser.Scene {
         enemy.spawn();
     }
 
-    update(_, dt){
+    update(_, dt){/*
         //Attack
         if(Phaser.Input.Keyboard.JustDown(this.player.input.attack) && this.player.cooldown <= 0){
             if(this.player.anims.currentAnim.key !== 'attack') this.player.play('attack');
-            var proj = this.projectiles.get(this.player.x, this.player.y, Math.floor(Math.random() * 3));
+            var proj = this.projectiles.get(this.player.x, this.player.y, 0);
             if(proj !== null){
                 proj.fire(this.player);
                 this.player.cooldown = 500;
             }
         }
-
         //Movement
         if(this.player.input.left.isDown){
             //is anim already running?
@@ -155,14 +186,12 @@ class Game extends Phaser.Scene {
             if(!this.player.flipX) this.player.flipX = true;
             this.player.body.setVelocityX(config.physics.player.moveSpeed);
         }
-
-        //Jump
+        ///Jump
         if(this.player.input.jump.isDown && this.player.body.onFloor()){
             this.player.body.setVelocityY(-config.physics.player.jumpForce);
             this.player.play('jump');
         }
-        
-        //Reset movement + anims
+        ///Reset movement + anims
         if(this.player.input.left.isUp && this.player.input.right.isUp){
             //restore idle anim
             if(this.player.anims.currentAnim.key !== 'idle' && this.player.input.attack.isUp && this.player.body.velocity.y >= 0) {
@@ -177,8 +206,14 @@ class Game extends Phaser.Scene {
             this.player.y = -20;
         }
 
+        //Shoot cooldown
         if(this.player.cooldown > 0){
             this.player.cooldown -= dt;
-        }
+        }*/
+    }
+
+    addScore(amount){
+        this.score += amount;
+        this.scoreText.setText(this.score);
     }
 }
