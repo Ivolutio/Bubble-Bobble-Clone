@@ -17,6 +17,8 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
 
     catch(bubble, enemy){
         if(this.caught === undefined){
+            this.size = 0;
+            this.setFrame(this.size);
             this.caught = this.scene.add.sprite(this.x, this.y, enemy.texture.key, 0);
             this.caught.setScale(enemy.scaleX*0.8, enemy.scaleY*0.8);
             enemy.destroy();
@@ -25,7 +27,6 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
 
     pickup(){
         if(this.caught !== undefined){
-            console.log('has caught');
             this.caught.destroy();
             this.caught = undefined;
 
@@ -53,13 +54,9 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
         if(this.lifetime >= 1666 && this.size < 1 && this.caught === undefined){
             this.size++;
             this.setFrame(this.size);
-            /*if(this.caught !== undefined)
-                this.caught.setScale(this.caught.scaleX / 2, this.caught.scaleY / 2);*/
         }else if(this.lifetime >= 3333  && this.size < 2 && this.caught === undefined){
             this.size++;
             this.setFrame(this.size);
-            /*if(this.caught !== undefined)
-                this.caught.setScale(this.caught.scaleX / 2, this.caught.scaleY / 2);*/
         }else if(this.lifetime >= 5000){
             if(this.caught !== undefined){
                 let enemy = this.scene.enemies.get(this.x, this.y, this.caught.texture.key);
