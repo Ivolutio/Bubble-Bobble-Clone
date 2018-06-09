@@ -77,12 +77,12 @@ class Game extends Phaser.Scene {
             repeat: -1,
         });
         ///Player object
-        this.player = this.physics.add.sprite(400, 100, 'dino', 0);
+        /*this.player = this.physics.add.sprite(400, 100, 'dino', 0);
         this.player.setScale(2.5);
         this.player.play('idle');
-        this.player.cooldown = 0;
-        //this.player = new Player(this, 400, 100);
-        //this.player.spawn();
+        this.player.cooldown = 0;*/
+        this.player = new Player(this, 400, 100);
+        this.player.spawn();
         ///Setup input
         this.player.input = this.input.keyboard.addKeys({
             left: Phaser.Input.Keyboard.KeyCodes.A,
