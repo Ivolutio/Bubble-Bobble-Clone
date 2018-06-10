@@ -62,7 +62,7 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
                 this.scene.time.delayedCall(2000, function(){
                     this.currentLevel++;
                     this.loadLevel('level' + this.currentLevel);
-                    this.scene.sounds.win.play();
+                    this.sounds.win.play();
                 }, [], this.scene)
             }
         }
