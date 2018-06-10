@@ -33,6 +33,12 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
             let pickup = this.scene.pickups.get(this.x, this.y, 'apple');
             pickup.spawn();
             this.scene.addScore(250);
+            if(this.scene.enemies.getChildren().length === 0){
+                this.scene.time.delayedCall(2000, function(){
+                    this.currentLevel++;
+                    this.loadLevel('level' + this.currentLevel);
+                }, [], this.scene)
+            }
         }
         this.pop();
     }
