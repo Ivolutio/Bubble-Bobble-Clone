@@ -2,9 +2,9 @@
 <!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
 <map version="1.0" tiledversion="1.1.5" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="8" tileheight="8" infinite="0" nextobjectid="11">
  <tileset firstgid="1" name="tiles" tilewidth="8" tileheight="8" tilecount="3" columns="3">
-  <image source="tiles.png" width="24" height="8"/>
+  <image source="../tiles.png" width="24" height="8"/>
  </tileset>
- <tileset firstgid="4" name="tiles" tilewidth="8" tileheight="8" tilecount="3" columns="3">
+ <tileset firstgid="4" name="tiles" tilewidth="8" tileheight="8" tilecount="0" columns="3">
   <image source="tiles.png" width="24" height="8"/>
  </tileset>
  <layer name="Solid" width="25" height="25">
