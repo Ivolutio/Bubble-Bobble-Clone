@@ -12,7 +12,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     update(_, dt){
-        if(this.input === undefined) return;
+        if(this.input === undefined || !this.scene.gameRunning) return;
         //Attack
         if(Phaser.Input.Keyboard.JustDown(this.input.attack) && this.cooldown <= 0){
             if(this.anims.currentAnim.key !== 'attack') this.play('attack');
@@ -38,6 +38,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         if(this.input.jump.isDown && this.body.onFloor()){
             this.body.setVelocityY(-config.physics.player.jumpForce);
             this.play('jump');
+            this.scene.sounds.jump.play();
         }
         ///Reset movement + anims
         if(this.input.left.isUp && this.input.right.isUp){

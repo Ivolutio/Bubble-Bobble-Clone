@@ -1,9 +1,39 @@
+var music;
 class Game extends Phaser.Scene {
     constructor() {
         super({key: "Game"});
     }
 
     preload(){
+        this.load.audio('theme', [
+            'assets/theme.ogg',
+            'assets/theme.mp3'
+        ]);
+        this.load.audio('win', [
+            'assets/win.ogg',
+            'assets/win.mp3'
+        ]);
+        this.load.audio('lose', [
+            'assets/lose.ogg',
+            'assets/lose.mp3'
+        ]);
+        this.load.audio('pickup', [
+            'assets/pickup.ogg',
+            'assets/pickup.mp3'
+        ]);
+        this.load.audio('jump', [
+            'assets/jump.ogg',
+            'assets/jump.mp3'
+        ]);
+        this.load.audio('bubble', [
+            'assets/bubble.ogg',
+            'assets/bubble.mp3'
+        ]);
+        this.load.audio('hit', [
+            'assets/hit.ogg',
+            'assets/hit.mp3'
+        ]);
+
         this.load.bitmapFont('pixel', 'assets/Pixel Emulator.png', 'assets/Pixel Emulator.fnt');
         this.load.spritesheet('dino', 'assets/dino.png', {frameWidth: 16, frameHeight: 16});
         this.load.spritesheet('bubble', 'assets/bubbles.png', {frameWidth: 16, frameHeight: 16});
@@ -59,7 +89,16 @@ class Game extends Phaser.Scene {
             frameRate: 4,
             repeat: -1,
         });
-        
+        //References to play sounds
+        this.sounds = {
+            bubble: this.sound.add('bubble', {volume: .5}),
+            win: this.sound.add('win', {volume: .5}),
+            lose: this.sound.add('lose', {volume: .5}),
+            pickup: this.sound.add('pickup', {volume: .3}),
+            jump: this.sound.add('jump', {volume: .2}),
+            hit: this.sound.add('hit', {volume: .5})
+        }
+
         //Life display
         let livesText = this.add.bitmapText(50, 15, 'pixel', 'Lives', 14).setOrigin(.5);
         this.lives = 3;
@@ -68,10 +107,11 @@ class Game extends Phaser.Scene {
             repeat: this.lives-1,
             setXY: { x: 25, y: 50, stepX: 25 }
         });
+        //Score Display
         this.textScore = this.add.bitmapText(50, 75, 'pixel', 'Score', 14).setOrigin(.5);
         this.score = 0;
         this.scoreText = this.add.bitmapText(50, 97, 'pixel', '0', 16).setOrigin(.5);
-        console.log(this.scoreText);
+        
         //Groups
         this.projectiles = this.physics.add.group({
             classType: Projectile,
@@ -96,9 +136,14 @@ class Game extends Phaser.Scene {
 
         //Create the world
         this.loadLevel('level' + this.currentLevel);
-        /*this.time.delayedCall(10000, function(){
-            this.loadLevel('level2');
-        }, [], this);*/
+
+        //Play theme
+        if(music === undefined){
+            music = this.sound.add('theme', {
+                loop: true
+            });
+            music.play();
+        }
     }
 
     update(_, dt){
@@ -108,10 +153,12 @@ class Game extends Phaser.Scene {
     addScore(amount){
         this.score += amount;
         this.scoreText.setText(this.score);
+        this.sounds.pickup.play();
     }
 
     loseLife(){
         this.gameRunning = false;
+        this.sounds.hit.play();
         this.cameras.main.fadeOut(1000, 0, 0, 0, function(){}, this);
         this.time.delayedCall(1000, function(){
             //Reset score
@@ -144,10 +191,13 @@ class Game extends Phaser.Scene {
 
         if(this.currentLevel > this.levels){
             //We're at the end
-            if(this.lives === 0)
+            if(this.lives === 0){
                 this.add.bitmapText(400, 100, 'pixel', 'Game Over').setOrigin(.5, .5);
-            else
+                this.sounds.lose.play();
+            }else{
                 this.add.bitmapText(400, 100, 'pixel', 'You Win').setOrigin(.5, .5);
+                this.sounds.win.play();
+            }
             this.time.delayedCall(3000, function(){
                 this.scene.restart();
             }, [], this);
@@ -198,22 +248,22 @@ class Game extends Phaser.Scene {
 
     spawnEntities(){
         let enemyPoints = this.level.createFromObjects('EnemySpawn', 1, {key: 'apple', frame: 1});
-            enemyPoints.forEach(function(element, index){
-                element.setScale(3);
-                element.x *= 3;
-                element.x += 100;
-                element.y *= 3;
-                this.createEnemy(element.x, element.y);
-            }, this);
-            
-            let playerPoint = this.level.createFromObjects('PlayerSpawn', 1, {key: 'apple', frame: 1})[0];
-            playerPoint.setScale(3);
-            playerPoint.x *= 3;
-            playerPoint.x += 100;
-            playerPoint.y *= 3;
-            this.createPlayer(playerPoint.x, playerPoint.y);
-            this.setupCollisions();
-            this.player.visible = true;
+        enemyPoints.forEach(function(element, index){
+            element.setScale(3);
+            element.x *= 3;
+            element.x += 100;
+            element.y *= 3;
+            this.createEnemy(element.x, element.y);
+        }, this);
+        
+        let playerPoint = this.level.createFromObjects('PlayerSpawn', 1, {key: 'apple', frame: 1})[0];
+        playerPoint.setScale(3);
+        playerPoint.x *= 3;
+        playerPoint.x += 100;
+        playerPoint.y *= 3;
+        this.createPlayer(playerPoint.x, playerPoint.y);
+        this.setupCollisions();
+        this.player.visible = true;
     }
 
     createPlayer(spawnX, spawnY){
@@ -309,5 +359,9 @@ class Game extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.enemies, function(){
             if(this.gameRunning) this.loseLife();
         }, undefined, this);
+    }
+
+    randomInt(max){
+        return Math.floor(Math.random * max);
     }
 }
