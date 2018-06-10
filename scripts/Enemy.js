@@ -10,6 +10,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     spawn(){
         this.setScale(2.5);
         this.anims.play(this.texture.key);
+        this.body.setCircle(7, 1, 1.5);
         this.body.setVelocityX(this.dir * this.speed);
     }
 

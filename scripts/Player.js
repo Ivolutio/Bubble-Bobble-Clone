@@ -8,6 +8,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     spawn(){
         this.setScale(2.5);
+        this.body.setCircle(7, 1, 1.5);
         this.anims.play('idle');
     }
     
