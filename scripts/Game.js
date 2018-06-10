@@ -92,8 +92,8 @@ class Game extends Phaser.Scene {
         //References to play sounds
         this.sounds = {
             bubble: this.sound.add('bubble', {volume: .5}),
-            win: this.sound.add('win', {volume: .5}),
-            lose: this.sound.add('lose', {volume: .5}),
+            win: this.sound.add('win', {volume: .2}),
+            lose: this.sound.add('lose', {volume: .2}),
             pickup: this.sound.add('pickup', {volume: .3}),
             jump: this.sound.add('jump', {volume: .2}),
             hit: this.sound.add('hit', {volume: .5})
