@@ -42,10 +42,11 @@ class Game extends Phaser.Scene {
         this.load.spritesheet('apple', 'assets/apple.png', {frameWidth: 16, frameHeight: 15});
         this.load.image('head', 'assets/head.png');
         this.load.image('tiles', 'assets/tiles.png');
+        //Levels
         this.load.tilemapTiledJSON('level1', 'assets/level1.json');
         this.load.tilemapTiledJSON('level2', 'assets/level2.json');
         this.load.tilemapTiledJSON('level3', 'assets/level3.json');
-        this.levels = 3;
+        this.levels = 3; //level count
     }
     
     create(){
@@ -53,42 +54,46 @@ class Game extends Phaser.Scene {
         this.currentLevel = 1;
         this.gameRunning = false;
         ///Animations
-        this.anims.create({
-            key: 'idle',
-            frames: this.anims.generateFrameNumbers('dino', { start: 0, end: 1}),
-            frameRate: 1,
-            repeat: -1,
-        });
-        this.anims.create({
-            key: 'walk',
-            frames: this.anims.generateFrameNumbers('dino', { start: 2, end: 3}),
-            frameRate: 4,
-            repeat: -1,
-        });
-        this.anims.create({
-            key: 'attack',
-            frames: this.anims.generateFrameNumbers('dino', { start: 4, end: 4}),
-            frameRate: 0,
-            repeat: 0,
-        });
-        this.anims.create({
-            key: 'jump',
-            frames: this.anims.generateFrameNumbers('dino', { start: 5, end: 5}),
-            frameRate: 0,
-            repeat: -1,
-        });
-        this.anims.create({
-            key: 'clockworker',
-            frames: this.anims.generateFrameNumbers('clockworker', { start: 0, end: 1}),
-            frameRate: 4,
-            repeat: -1,
-        });
-        this.anims.create({
-            key: 'applebye',
-            frames: this.anims.generateFrameNumbers('apple', { start: 0, end: 1}),
-            frameRate: 4,
-            repeat: -1,
-        });
+        //if we restart, the anims still exist and throw errors
+        if(!this.anims.get('idle')){ //so if we dont have this one yet, create new
+            this.anims.create({
+                key: 'idle',
+                frames: this.anims.generateFrameNumbers('dino', { start: 0, end: 1}),
+                frameRate: 1,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: 'walk',
+                frames: this.anims.generateFrameNumbers('dino', { start: 2, end: 3}),
+                frameRate: 4,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: 'attack',
+                frames: this.anims.generateFrameNumbers('dino', { start: 4, end: 4}),
+                frameRate: 0,
+                repeat: 0,
+            });
+            this.anims.create({
+                key: 'jump',
+                frames: this.anims.generateFrameNumbers('dino', { start: 5, end: 5}),
+                frameRate: 0,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: 'clockworker',
+                frames: this.anims.generateFrameNumbers('clockworker', { start: 0, end: 1}),
+                frameRate: 4,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: 'applebye',
+                frames: this.anims.generateFrameNumbers('apple', { start: 0, end: 1}),
+                frameRate: 4,
+                repeat: -1,
+            });
+        }
+        
         //References to play sounds
         this.sounds = {
             bubble: this.sound.add('bubble', {volume: .5}),
@@ -100,7 +105,7 @@ class Game extends Phaser.Scene {
         }
 
         //Life display
-        let livesText = this.add.bitmapText(50, 15, 'pixel', 'Lives', 14).setOrigin(.5);
+        this.add.bitmapText(50, 15, 'pixel', 'Lives', 14).setOrigin(.5);
         this.lives = 3;
         this.lifeDisplay = this.add.group({
             key: 'head',
@@ -116,7 +121,6 @@ class Game extends Phaser.Scene {
         this.projectiles = this.physics.add.group({
             classType: Projectile,
             maxSize: 10,
-            runChildUpdate: true,
         });
         this.enemies = this.physics.add.group({
             classType: Enemy,
@@ -138,7 +142,7 @@ class Game extends Phaser.Scene {
         this.loadLevel('level' + this.currentLevel);
 
         //Play theme
-        if(music === undefined){
+        if(music === undefined){ //check if we already have one playing
             music = this.sound.add('theme', {
                 loop: true
             });
@@ -157,35 +161,42 @@ class Game extends Phaser.Scene {
     }
 
     loseLife(){
+        //Stop the game
         this.gameRunning = false;
         this.sounds.hit.play();
-        this.cameras.main.fadeOut(1000, 0, 0, 0, function(){}, this);
-        this.time.delayedCall(1000, function(){
+        //Fade out camera
+        this.cameras.main.fadeOut(500, 0, 0, 0, function(){}, this);
+        this.time.delayedCall(500, function(){
             //Reset score
             this.score = this.startScore;
             this.scoreText.setText(this.score);
-            //Life display
+            //Update life display
             this.lives -= 1;
             this.lifeDisplay.getChildren()[this.lifeDisplay.getChildren().length-1].destroy();
 
             if(this.lives > 0){
+                //Reset Level
                 this.clearEntities();
                 this.spawnEntities();
             }else{
+                //load a non-existing level to stop
                 this.currentLevel = 50000;
                 this.loadLevel('');
             }
+            //Show stuff again
             this.cameras.main.fadeIn(1000, 0, 0, 0);
         }, [], this);
     }
 
     loadLevel(key){
+        //If there was a previous level, move it up (just like the new one)
         if(this.currLevel !== undefined){
             let goaway = this.tweens.add({
                 targets: this.currLevel,
                 y: '-=700',
                 duration: 2000,
             });
+            //Remove everything
             this.clearEntities();
         }
 
@@ -198,7 +209,8 @@ class Game extends Phaser.Scene {
                 this.add.bitmapText(400, 100, 'pixel', 'You Win').setOrigin(.5, .5);
                 this.sounds.win.play();
             }
-            this.time.delayedCall(3000, function(){
+            //Wait a bit before restarting
+            this.time.delayedCall(5000, function(){
                 this.scene.restart();
             }, [], this);
         }else{
@@ -220,13 +232,16 @@ class Game extends Phaser.Scene {
             this.enemyReverseLayer.setCollisionByExclusion([-1], true);
             this.enemySolidLayer.setCollisionByExclusion([-1], true);
 
+            //Reference to every layer in the level
             this.currLevel = [this.solidLayer, this.platformsLayer, this.enemyReverseLayer, this.enemySolidLayer];
 
+            //Slide it in
             let tween = this.tweens.add({
                 targets: this.currLevel,
                 y: '-=700',
                 duration: 2000,
             });
+            //After that's done, spawn everything in
             tween.setCallback('onComplete', function(){
                 this.spawnEntities();
             }, [], this);
@@ -238,6 +253,7 @@ class Game extends Phaser.Scene {
         this.projectiles.clear(true, true);
         this.pickups.clear(true, true);
         this.bubbles.getChildren().forEach(function(child, index){
+            //we also need to destroy it's caught things
             if(child.caught !== null){
                 child.caught.destroy();
             }
@@ -247,6 +263,7 @@ class Game extends Phaser.Scene {
     }
 
     spawnEntities(){
+        //Create an enemy for every spawnpoint in the tilemap
         let enemyPoints = this.level.createFromObjects('EnemySpawn', 1, {key: 'apple', frame: 1});
         enemyPoints.forEach(function(element, index){
             element.setScale(3);
@@ -256,17 +273,21 @@ class Game extends Phaser.Scene {
             this.createEnemy(element.x, element.y);
         }, this);
         
+        //Spawn player on player point
         let playerPoint = this.level.createFromObjects('PlayerSpawn', 1, {key: 'apple', frame: 1})[0];
         playerPoint.setScale(3);
         playerPoint.x *= 3;
         playerPoint.x += 100;
         playerPoint.y *= 3;
         this.createPlayer(playerPoint.x, playerPoint.y);
+        //Setup the collisions AFTER everything else is setup
         this.setupCollisions();
+        //We created a disabled player as well, let's activate it.
         this.player.visible = true;
     }
 
     createPlayer(spawnX, spawnY){
+        //bub and dino are for a nice bubble floating in effect
         let bub = this.add.sprite(400, -50, 'bubble', 0).setScale(3);
         let dino = this.add.sprite(400, -50, 'dino', 0).setScale(2.5*0.8);
 
@@ -281,11 +302,13 @@ class Game extends Phaser.Scene {
             dino.destroy();
             let bubblepop = this.add.sprite(spawnX, spawnY, 'bubble', 3).setScale(3);
             this.time.delayedCall(200, function(){bubblepop.destroy()}, [], this);
+
             this.player.x = spawnX;
             this.player.y = spawnY;
             this.add.existing(this.player);
             this.gameRunning = true; //player is active so game may run
         }, [], this);
+        //Create and setup the player class
         this.player = new Player(this, spawnX, spawnY);
         this.physics.world.enable(this.player);
         this.player.spawn();
@@ -298,6 +321,7 @@ class Game extends Phaser.Scene {
     }
 
     createEnemy(spawnX, spawnY){
+        //bub and enemySpr are for a nice bubble floating in effect
         let bub = this.add.sprite(400, -50, 'bubble', 0).setScale(3);
         let enemySpr = this.add.sprite(400, -50, 'clockworker', 0).setScale(2.5*0.8);
 
@@ -312,9 +336,9 @@ class Game extends Phaser.Scene {
             enemySpr.destroy();
             let bubblepop = this.add.sprite(spawnX, spawnY, 'bubble', 3).setScale(3);
             this.time.delayedCall(200, function(){bubblepop.destroy()}, [], this);
+
             let enemy = this.enemies.get(spawnX, spawnY, 'clockworker');
             enemy.spawn();
-            
         }, [], this);
     }
 
@@ -359,9 +383,5 @@ class Game extends Phaser.Scene {
         this.physics.add.overlap(this.player, this.enemies, function(){
             if(this.gameRunning) this.loseLife();
         }, undefined, this);
-    }
-
-    randomInt(max){
-        return Math.floor(Math.random * max);
     }
 }

@@ -3,10 +3,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, 'dino', 0);
         this.scene.events.on('update', this.update, this);
         this.lifetime = 0;
-        this.cooldown = 0;
+        this.cooldown = 0; //shoot cooldown
     }
 
     spawn(){
+        //Setup important stuff after we have been created
         this.setScale(2.5);
         this.body.setCircle(7, 1, 1.5);
         this.anims.play('idle');
@@ -14,6 +15,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     
     update(_, dt){
         if(this.input === undefined) return;
+        
         //Attack
         if(Phaser.Input.Keyboard.JustDown(this.input.attack) && this.cooldown <= 0){
             if(this.anims.currentAnim.key !== 'attack') this.play('attack');

@@ -2,36 +2,43 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y){
         super(scene, x, y, 'bubble', 0);
         this.lifetime = 0;
-        this.size = 0;
-        this.caught = null;
-        this.dead = false;
+        this.size = 0; //only for visuals
+        this.caught = null; //holder for caught thing
+        this.dead = false; //prevent multiple deaths
     }
 
     bub(){
+        //Setup important stuff after we have been created
         this.setScale(3);
         this.body.isCircle = true;
         this.body.allowGravity = false;
 
+        //Catch enemies
         this.collider = this.scene.physics.add.overlap(this, this.scene.enemies, this.catch, undefined, this)
 
+        //Start floating up
         this.body.setVelocityY(-10);
         this.scene.sounds.bubble.play();
     }
 
     catch(bubble, enemy){
         if(this.caught === null && !enemy.paused){
-            try{this.scene.sounds.bubble.play()}
-            catch(e){}
+            this.scene.sounds.bubble.play();
+            //Biggest sprite
             this.size = 0;
             this.setFrame(this.size);
+            //stop enemy ai
             enemy.pause();
+            //Keep enemy with us
             this.caught = enemy;
             this.caught.setScale(enemy.scaleX*0.8, enemy.scaleY*0.8);
         }
     }
 
     pickup(){
+        //Not an instant pop from the player if he's standing really nearby an enemy
         if(this.lifetime < 200) return;
+        //If we have something caught kill it and turn in an item drop
         if(this.caught !== null){
             this.caught.destroy();
             this.caught = null;
@@ -59,8 +66,9 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
                 pickup.spawn();
             }, [], this);
 
-            
+            //Check if this was the last enemy
             if(this.scene.enemies.getChildren().length === 0 && this.scene.gameRunning){
+                //go to next level
                 this.scene.gameRunning = false;
                 this.scene.time.delayedCall(2000, function(){
                     this.currentLevel++;
@@ -73,11 +81,13 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
     }
 
     pop(){
-        if(!this.dead){
+        //If I'm not dead yet
+        if(!this.dead){ //sometimes it triggers multiple times
+            //Kill me
             this.dead = true;
             this.collider.destroy();
             this.body.setVelocityY(0);
-            this.setFrame(3);
+            this.setFrame(3); //pop frame
             this.scene.sounds.bubble.play();
             this.scene.time.delayedCall(200, function(){
                 this.destroy();
@@ -86,6 +96,7 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
     }
 
     update(_, dt){
+        //make the caught object follow us
         if(this.caught !== null){
             this.caught.x = this.x; 
             this.caught.y = this.y;
@@ -93,6 +104,7 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
 
         this.lifetime += dt;
         
+        //Change sizes
         if(this.lifetime >= 1666 && this.size < 1 && this.caught === null){
             this.size++;
             this.setFrame(this.size);
@@ -101,7 +113,8 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
             this.setFrame(this.size);
         }else if(this.lifetime >= 5000){
             this.lifetime = 0;
-            if(this.caught !== null){
+            //If we're going to die, let's release the enemy again
+            if(this.caught !== null){ 
                 this.caught.resume();
                 this.caught = null;
             }

@@ -4,6 +4,7 @@ class Projectile extends Phaser.Physics.Arcade.Sprite {
     }
 
     fire(source){
+        //General setup stuff
         this.setScale(1.5);
         this.body.isCircle = true;
         this.body.allowGravity = false;
@@ -17,12 +18,9 @@ class Projectile extends Phaser.Physics.Arcade.Sprite {
     }
 
     hit(other){
+        //Create the bubble and destroy myself
         let bubble = this.scene.bubbles.get(this.x, this.y);
         bubble.bub();
         this.destroy();
-    }
-
-    update(dt){
-        //console.log('update projectile');    
     }
 }

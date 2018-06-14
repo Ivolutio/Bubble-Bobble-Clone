@@ -5,6 +5,7 @@ class Pickup extends Phaser.Physics.Arcade.Sprite {
     }
 
     spawn(){
+        //Setup important stuff after we have been created
         this.setScale(2);
     }
 
@@ -16,9 +17,10 @@ class Pickup extends Phaser.Physics.Arcade.Sprite {
     update(_, dt){
         this.lifespan += dt;
 
-        if(this.lifespan >= 2500 && this.anims.currentAnim === null){
+        //Start flickering and then destroy it after
+        if(this.lifespan >= 4000 && this.anims.currentAnim === null){
             this.anims.play('applebye');
-        }else if(this.lifespan >= 5000){
+        }else if(this.lifespan >= 8000){
             this.destroy();
         }
     }
