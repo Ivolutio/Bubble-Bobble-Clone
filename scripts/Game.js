@@ -238,7 +238,7 @@ class Game extends Phaser.Scene {
         this.projectiles.clear(true, true);
         this.pickups.clear(true, true);
         this.bubbles.getChildren().forEach(function(child, index){
-            if(child.caught !== undefined){
+            if(child.caught !== null){
                 child.caught.destroy();
             }
         }, this);

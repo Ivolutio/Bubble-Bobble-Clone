@@ -5,13 +5,12 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.speed = 100;
         this.jumpDelay = 2000 + Math.floor(Math.random() * 5000);
         this.lifespan = 0;
+        this.paused = false;
     }
-
     spawn(){
         this.setScale(2.5);
         this.anims.play(this.texture.key);
         this.body.setCircle(7, 1, 1.5);
-        this.body.setVelocityX(this.dir * this.speed);
     }
 
     changeDir(){
@@ -26,7 +25,27 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.body.setVelocityY(-config.physics.player.jumpForce);
     }
 
+    pause(){
+        if(!this.paused){
+            this.paused = true;
+            this.body.enable = false;
+            this.anims.pause();
+            this.setFrame(0);
+        }
+    }
+
+    resume(){
+        if(this.paused){
+            this.paused = false;
+            this.setScale(2.5);
+            this.body.enable = true;
+            this.anims.resume();
+        }
+    }
+
     update(_, dt){
+        if(this.paused) return;
+
         if(this.body.velocity.y > 0){
             this.body.setVelocityX(0);
         }else{
