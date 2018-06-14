@@ -13,7 +13,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     update(_, dt){
-        if(this.input === undefined || !this.scene.gameRunning) return;
+        if(this.input === undefined) return;
         //Attack
         if(Phaser.Input.Keyboard.JustDown(this.input.attack) && this.cooldown <= 0){
             if(this.anims.currentAnim.key !== 'attack') this.play('attack');

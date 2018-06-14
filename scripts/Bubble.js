@@ -31,6 +31,7 @@ class Bubble extends Phaser.Physics.Arcade.Sprite {
     }
 
     pickup(){
+        if(this.lifetime < 200) return;
         if(this.caught !== null){
             this.caught.destroy();
             this.caught = null;
