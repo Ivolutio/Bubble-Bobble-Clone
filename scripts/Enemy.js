@@ -76,5 +76,22 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.lifespan += dt;
+
+        //Check if youre out of the map and kill enemy
+        if(this.x < 100 || this.x > 700){
+            if(this.gameRunning) {
+                this.destroy();
+                //Check if this was the last enemy
+                if(this.scene.enemies.getChildren().length === 0 && this.scene.gameRunning){
+                    //go to next level
+                    this.scene.gameRunning = false;
+                    this.scene.time.delayedCall(2000, function(){
+                        this.currentLevel++;
+                        this.loadLevel('level' + this.currentLevel);
+                        this.sounds.win.play();
+                    }, [], this.scene)
+                }
+            }
+        }
     }
 }

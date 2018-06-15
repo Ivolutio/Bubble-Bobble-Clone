@@ -62,5 +62,10 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         if(this.cooldown > 0){
             this.cooldown -= dt;
         }
+
+        //Check if youre out of the map and kill the player
+        if(this.x < 100 || this.x > 700){
+            if(this.gameRunning) this.loseLife();
+        }
     }
 }
