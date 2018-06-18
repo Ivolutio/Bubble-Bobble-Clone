@@ -344,7 +344,7 @@ class Game extends Phaser.Scene {
 
     setupCollisions(){
         ///Player with world
-        //this.physics.add.collider(this.player, this.solidLayer);
+        this.physics.add.collider(this.player, this.solidLayer);
         this.physics.add.collider(this.player, this.platformsLayer);
         this.platformsLayer.forEachTile(function(tile){
             tile.collideUp = true;
