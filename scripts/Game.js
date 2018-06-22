@@ -165,6 +165,8 @@ class Game extends Phaser.Scene {
         this.gameRunning = false;
         this.sounds.hit.play();
         this.rotateTween.restart();
+        this.player.input = null;
+        this.player.body.setVelocityX(0);
         
         //Fade out camera
         this.cameras.main.fadeOut(500, 0, 0, 0, function(){}, this);
