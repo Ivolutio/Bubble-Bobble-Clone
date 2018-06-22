@@ -330,7 +330,12 @@ class Game extends Phaser.Scene {
                 return 0;
               },
               getEnd: function(target, key, value) {
-                return -720;
+                if(target.flipX) {
+                  return -720;
+                } else {
+                  return 720;  
+                }
+                
               }
             },
             duration: 2000,
