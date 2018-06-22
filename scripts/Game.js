@@ -164,6 +164,8 @@ class Game extends Phaser.Scene {
         //Stop the game
         this.gameRunning = false;
         this.sounds.hit.play();
+        this.rotateTween.restart();
+        
         //Fade out camera
         this.cameras.main.fadeOut(500, 0, 0, 0, function(){}, this);
         this.time.delayedCall(500, function(){
@@ -318,6 +320,22 @@ class Game extends Phaser.Scene {
             jump: Phaser.Input.Keyboard.KeyCodes.W,
             attack: Phaser.Input.Keyboard.KeyCodes.SPACE,
         });
+
+        let rotate = this.tweens.add({
+            targets: this.player,
+            angle: {
+              getStart: function(target, key, value) {
+                return 0;
+              },
+              getEnd: function(target, key, value) {
+                return -720;
+              }
+            },
+            duration: 2000,
+            paused: true,
+            repeat: -1
+        });
+        this.rotateTween = rotate;
     }
 
     createEnemy(spawnX, spawnY){
