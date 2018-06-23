@@ -17,6 +17,9 @@ class Game extends Phaser.Scene {
             'assets/lose.ogg',
             'assets/lose.mp3'
         ]);
+        this.load.audio('death', [
+          'assets/death.wav'
+          ]);
         this.load.audio('pickup', [
             'assets/pickup.ogg',
             'assets/pickup.mp3'
@@ -101,7 +104,8 @@ class Game extends Phaser.Scene {
             lose: this.sound.add('lose', {volume: .2}),
             pickup: this.sound.add('pickup', {volume: .3}),
             jump: this.sound.add('jump', {volume: .2}),
-            hit: this.sound.add('hit', {volume: .5})
+            hit: this.sound.add('hit', {volume: .5}),
+            death: this.sound.add('death', {volume: 0.5})
         }
 
         //Life display
@@ -163,7 +167,7 @@ class Game extends Phaser.Scene {
     loseLife(){
         //Stop the game
         this.gameRunning = false;
-        this.sounds.hit.play();
+        this.sounds.death.play();
         this.rotateTween.restart();
         this.player.input = null;
         this.player.body.setVelocityX(0);
