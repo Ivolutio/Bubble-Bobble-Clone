@@ -17,6 +17,9 @@ class Game extends Phaser.Scene {
             'assets/lose.ogg',
             'assets/lose.mp3'
         ]);
+        this.load.audio('death', [
+          'assets/death.wav'
+          ]);
         this.load.audio('pickup', [
             'assets/pickup.ogg',
             'assets/pickup.mp3'
@@ -101,7 +104,8 @@ class Game extends Phaser.Scene {
             lose: this.sound.add('lose', {volume: .2}),
             pickup: this.sound.add('pickup', {volume: .3}),
             jump: this.sound.add('jump', {volume: .2}),
-            hit: this.sound.add('hit', {volume: .5})
+            hit: this.sound.add('hit', {volume: .5}),
+            death: this.sound.add('death', {volume: 0.5})
         }
 
         //Life display
@@ -163,7 +167,11 @@ class Game extends Phaser.Scene {
     loseLife(){
         //Stop the game
         this.gameRunning = false;
-        this.sounds.hit.play();
+        this.sounds.death.play();
+        this.rotateTween.restart();
+        this.player.input = null;
+        this.player.body.setVelocityX(0);
+        
         //Fade out camera
         this.cameras.main.fadeOut(500, 0, 0, 0, function(){}, this);
         this.time.delayedCall(500, function(){
@@ -318,6 +326,27 @@ class Game extends Phaser.Scene {
             jump: Phaser.Input.Keyboard.KeyCodes.W,
             attack: Phaser.Input.Keyboard.KeyCodes.SPACE,
         });
+
+        let rotate = this.tweens.add({
+            targets: this.player,
+            angle: {
+              getStart: function(target, key, value) {
+                return 0;
+              },
+              getEnd: function(target, key, value) {
+                if(target.flipX) {
+                  return -720;
+                } else {
+                  return 720;  
+                }
+                
+              }
+            },
+            duration: 2000,
+            paused: true,
+            repeat: -1
+        });
+        this.rotateTween = rotate;
     }
 
     createEnemy(spawnX, spawnY){
