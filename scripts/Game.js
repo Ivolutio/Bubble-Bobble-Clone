@@ -313,6 +313,7 @@ class Game extends Phaser.Scene {
 
             this.player.x = spawnX;
             this.player.y = spawnY;
+			this.player.canshoot = true;
             this.add.existing(this.player);
             this.gameRunning = true; //player is active so game may run
         }, [], this);

@@ -4,6 +4,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.events.on('update', this.update, this);
         this.lifetime = 0;
         this.cooldown = 0; //shoot cooldown
+		this.canshoot = false;
     }
 
     spawn(){
@@ -17,7 +18,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         if(this.input === undefined || this.input === null) return;
         
         //Attack
-        if(Phaser.Input.Keyboard.JustDown(this.input.attack) && this.cooldown <= 0){
+        if(Phaser.Input.Keyboard.JustDown(this.input.attack) && this.cooldown <= 0 && this.canshoot){
             if(this.anims.currentAnim.key !== 'attack') this.play('attack');
             var proj = this.scene.projectiles.get(this.x, this.y, 0);
             if(proj !== null){
